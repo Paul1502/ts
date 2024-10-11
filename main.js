@@ -1,24 +1,26 @@
 // Three.js Setup
-let scene, camera, renderer, stars, starGeo;
+let scene, camera, renderer, stars;
 
 function init() {
     scene = new THREE.Scene();
 
+    // Kameraeinstellungen
     camera = new THREE.PerspectiveCamera(
-        60,
+        75,
         window.innerWidth / window.innerHeight,
-        1,
+        0.1,
         1000
     );
-    camera.position.z = 1;
-    camera.rotation.x = Math.PI / 2;
+    camera.position.z = 5;
 
+    // Renderer erstellen
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
     document.getElementById('canvas-container').appendChild(renderer.domElement);
 
     // Sterne erstellen
-    starGeo = new THREE.BufferGeometry();
+    const starGeometry = new THREE.BufferGeometry();
     const starCount = 10000;
     const positions = new Float32Array(starCount * 3);
 
@@ -28,40 +30,53 @@ function init() {
         positions[i * 3 + 2] = (Math.random() - 0.5) * 2000;
     }
 
-    starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-    const sprite = new THREE.TextureLoader().load('https://i.imgur.com/Y0jzX5D.png');
     const starMaterial = new THREE.PointsMaterial({
-        color: 0xaaaaaa,
+        color: 0xffffff,
         size: 1,
-        map: sprite,
+        sizeAttenuation: true,
         transparent: true,
+        opacity: 0.7,
     });
 
-    stars = new THREE.Points(starGeo, starMaterial);
+    stars = new THREE.Points(starGeometry, starMaterial);
     scene.add(stars);
 
     // Mausinteraktion
     document.addEventListener('mousemove', onMouseMove, false);
 
+    // Animation starten
     animate();
+}
+
+let mouseX = 0;
+let mouseY = 0;
+let targetX = 0;
+let targetY = 0;
+
+const windowHalfX = window.innerWidth / 2;
+const windowHalfY = window.innerHeight / 2;
+
+function onMouseMove(event) {
+    mouseX = (event.clientX - windowHalfX);
+    mouseY = (event.clientY - windowHalfY);
 }
 
 function animate() {
     requestAnimationFrame(animate);
 
-    stars.rotation.y += 0.0002;
+    targetX = mouseX * 0.001;
+    targetY = mouseY * 0.001;
+
+    // Sterne rotieren für dynamischen Effekt
+    stars.rotation.y += 0.002;
+
+    // Kamera reagiert sanft auf Mausbewegungen
+    camera.rotation.x += 0.05 * (targetY - camera.rotation.x);
+    camera.rotation.y += 0.05 * (targetX - camera.rotation.y);
 
     renderer.render(scene, camera);
-}
-
-function onMouseMove(event) {
-    let mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-    let mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    camera.position.x += mouseX * 0.05;
-    camera.position.y += mouseY * 0.05;
-    camera.lookAt(scene.position);
 }
 
 // Fenstergröße anpassen
