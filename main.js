@@ -1,83 +1,101 @@
-// Three.js Szene einrichten
+// Three.js Setup
 let scene, camera, renderer, stars, starGeo;
 
 function init() {
-    // Szene, Kamera und Renderer erstellen
     scene = new THREE.Scene();
 
-    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+    camera = new THREE.PerspectiveCamera(
+        60,
+        window.innerWidth / window.innerHeight,
+        1,
+        1000
+    );
     camera.position.z = 1;
     camera.rotation.x = Math.PI / 2;
 
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('canvas-container').appendChild(renderer.domElement);
 
     // Sterne erstellen
     starGeo = new THREE.BufferGeometry();
-    let positions = [];
-    for (let i = 0; i < 6000; i++) {
-        positions.push(
-            Math.random() * 600 - 300,
-            Math.random() * 600 - 300,
-            Math.random() * 600 - 300
-        );
-    }
-    starGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    const starCount = 10000;
+    const positions = new Float32Array(starCount * 3);
 
-    let sprite = new THREE.TextureLoader().load('https://i.imgur.com/Y0jzX5D.png');
-    let starMaterial = new THREE.PointsMaterial({
+    for (let i = 0; i < starCount; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 2000;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 2000;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 2000;
+    }
+
+    starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const sprite = new THREE.TextureLoader().load('https://i.imgur.com/Y0jzX5D.png');
+    const starMaterial = new THREE.PointsMaterial({
         color: 0xaaaaaa,
-        size: 0.7,
-        map: sprite
+        size: 1,
+        map: sprite,
+        transparent: true,
     });
 
     stars = new THREE.Points(starGeo, starMaterial);
     scene.add(stars);
 
+    // Mausinteraktion
+    document.addEventListener('mousemove', onMouseMove, false);
+
     animate();
 }
 
 function animate() {
-    starGeo.attributes.position.array.forEach((value, index) => {
-        if (index % 3 === 1) {
-            starGeo.attributes.position.array[index] -= 0.2;
-            if (starGeo.attributes.position.array[index] < -200) {
-                starGeo.attributes.position.array[index] = 200;
-            }
-        }
-    });
-    starGeo.attributes.position.needsUpdate = true;
+    requestAnimationFrame(animate);
+
+    stars.rotation.y += 0.0002;
 
     renderer.render(scene, camera);
-    requestAnimationFrame(animate);
 }
 
-// GSAP Animationen für den Text
-function animateText() {
-    gsap.to('.title', { duration: 2, opacity: 1, y: -20, ease: 'power2.out' });
-    gsap.to('.subtitle', { duration: 2, opacity: 1, y: 20, ease: 'power2.out', delay: 0.5 });
-}
+function onMouseMove(event) {
+    let mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+    let mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
 
-// Mausinteraktion
-document.addEventListener('mousemove', onDocumentMouseMove, false);
-let mouseX = 0, mouseY = 0;
-
-function onDocumentMouseMove(event) {
-    mouseX = (event.clientX - window.innerWidth / 2) / 100;
-    mouseY = (event.clientY - window.innerHeight / 2) / 100;
-    camera.position.x += (mouseX - camera.position.x) * 0.05;
-    camera.position.y += (-mouseY - camera.position.y) * 0.05;
+    camera.position.x += mouseX * 0.05;
+    camera.position.y += mouseY * 0.05;
     camera.lookAt(scene.position);
 }
 
-// Fenstergröße ändern
+// Fenstergröße anpassen
 window.addEventListener('resize', onWindowResize, false);
 
-function onWindowResize(){
+function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
+
     renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+// GSAP-Animationen
+function animateText() {
+    gsap.to('.title', {
+        duration: 1.5,
+        opacity: 1,
+        y: -20,
+        ease: 'power3.out',
+    });
+    gsap.to('.subtitle', {
+        duration: 1.5,
+        opacity: 1,
+        y: -20,
+        ease: 'power3.out',
+        delay: 0.3,
+    });
+    gsap.to('.discord-button', {
+        duration: 1.5,
+        opacity: 1,
+        y: -20,
+        ease: 'power3.out',
+        delay: 0.6,
+    });
 }
 
 // Initialisierung
