@@ -1,14 +1,15 @@
-/* Grundstil */
+/* Grundlegende Stile */
 body, html {
     margin: 0;
     padding: 0;
     overflow: hidden;
     background: #000;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Roboto', sans-serif;
     height: 100vh;
+    color: #fff;
 }
 
-/* Canvas Container */
+/* Canvas-Container */
 #canvas-container {
     position: fixed;
     top: 0;
@@ -18,26 +19,77 @@ body, html {
     z-index: -1;
 }
 
-/* Inhalt zentrieren */
+/* Zentrierter Inhalt */
 .content {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-    color: #ffffff;
     pointer-events: none;
 }
 
-/* Titelstil mit GSAP-Animation */
+/* Titelstil */
 .title {
     font-size: 5em;
     margin: 0;
     opacity: 0;
+    letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
+/* Untertitelstil */
 .subtitle {
     font-size: 2em;
-    margin: 0;
+    margin: 20px 0;
     opacity: 0;
+    letter-spacing: 1px;
+}
+
+/* Discord-Button */
+.discord-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #7289DA;
+    color: #fff;
+    padding: 15px 25px;
+    text-decoration: none;
+    font-size: 1.2em;
+    border-radius: 5px;
+    margin-top: 30px;
+    opacity: 0;
+    pointer-events: auto;
+    transition: background-color 0.3s ease;
+}
+
+.discord-button:hover {
+    background-color: #5b6eae;
+}
+
+.discord-button img {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+}
+
+/* Responsives Design */
+@media screen and (max-width: 768px) {
+    .title {
+        font-size: 3em;
+    }
+
+    .subtitle {
+        font-size: 1.5em;
+    }
+
+    .discord-button {
+        font-size: 1em;
+        padding: 10px 20px;
+    }
+
+    .discord-button img {
+        width: 25px;
+        height: 25px;
+    }
 }
